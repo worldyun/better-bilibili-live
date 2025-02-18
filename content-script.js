@@ -10,32 +10,35 @@ function modifyZIndex() {
     }
 }
 
-// 主执行逻辑
-window.addEventListener('load', () => {
-    // 尝试立即执行
-    modifyZIndex();
+// 初始化遮罩去除
+function initMaskRemoval() {
+    // 主执行逻辑
+    window.addEventListener('load', () => {
+        // 尝试立即执行
+        modifyZIndex();
 
-    // 额外添加MutationObserver防止动态加载
-    const maskObserver = new MutationObserver((mutations, obs) => {
-        if (document.getElementById('web-player-module-area-mask-panel')) {
-            obs.disconnect(); // 找到后停止观察
-            clearTimeout(fallbackTimeout);
-            modifyZIndex();
-        }
+        // 额外添加MutationObserver防止动态加载
+        const maskObserver = new MutationObserver((mutations, obs) => {
+            if (document.getElementById('web-player-module-area-mask-panel')) {
+                obs.disconnect(); // 找到后停止观察
+                clearTimeout(fallbackTimeout);
+                modifyZIndex();
+            }
+        });
+
+        // 安全停止观察机制
+        const fallbackTimeout = setTimeout(() => {
+            maskObserver.disconnect();
+            console.log('[Better Bilibili Live] 直播马赛克观察器已超时停止');
+        }, observerTimeout);
+
+        // 开始观察
+        maskObserver.observe(document.querySelector('.live-player-mounter'), {
+            childList: true,
+            subtree: true
+        });
     });
-
-    // 安全停止观察机制
-    const fallbackTimeout = setTimeout(() => {
-        maskObserver.disconnect();
-        console.log('[Better Bilibili Live] 直播马赛克观察器已超时停止');
-    }, observerTimeout);
-
-    // 开始观察
-    maskObserver.observe(document.querySelector('.live-player-mounter'), {
-        childList: true,
-        subtree: true
-    });
-});
+}
 
 //---------------------------------------------改原画--------------------------------------------------
 function createMouseEvent(type, element) {
@@ -129,11 +132,27 @@ function initializeObserver() {
     });
 }
 
-window.addEventListener('load', () => {
-    // 兼容页面动态加载
-    if (document.readyState === 'complete') {
-        initializeObserver();
-    } else {
-        window.addEventListener('DOMContentLoaded', initializeObserver);
-    }
+// 初始化画质控制
+function initQualityControl() {
+    window.addEventListener('load', () => {
+        // 兼容页面动态加载
+        if (document.readyState === 'complete') {
+            initializeObserver();
+        } else {
+            window.addEventListener('DOMContentLoaded', initializeObserver);
+        }
+    });
+}
+
+// 配置存储
+let config = {
+    removeMask: true,
+    originalQuality: true
+};
+
+// 从存储中加载配置
+chrome.storage.sync.get(['removeMask', 'originalQuality'], function (result) {
+    Object.assign(config, result);
+    if (config.removeMask) initMaskRemoval();
+    if (config.originalQuality) initQualityControl();
 });

@@ -8,6 +8,10 @@
       "js": ["content-script.js"],
       "run_at": "document_idle"
     }],
+    "permissions": ["storage"],
+    "action": {
+      "default_popup": "popup.html"
+    },
     "icons": {
       "128": "Z.png"
     }
