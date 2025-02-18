@@ -1,0 +1,14 @@
+{
+    "manifest_version": 3,
+    "name": "Better Bilibili Live",
+    "version": "1.1",
+    "description": "修改B站直播播放器马赛克遮罩层的z-index值以去除马赛克, 并自动改为原画",
+    "content_scripts": [{
+      "matches": ["*://live.bilibili.com/*"],
+      "js": ["content-script.js"],
+      "run_at": "document_idle"
+    }],
+    "icons": {
+      "128": "Z.png"
+    }
+  }
