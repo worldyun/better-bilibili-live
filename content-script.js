@@ -12,6 +12,10 @@ function modifyZIndex() {
 
 // 初始化遮罩去除
 function initMaskRemoval() {
+    const livePlayerMounter = document.querySelector('.live-player-mounter');
+    if (!livePlayerMounter) {
+        return;
+    }
     // 主执行逻辑
     window.addEventListener('load', () => {
         // 尝试立即执行
@@ -33,7 +37,7 @@ function initMaskRemoval() {
         }, observerTimeout);
 
         // 开始观察
-        maskObserver.observe(document.querySelector('.live-player-mounter'), {
+        maskObserver.observe(livePlayerMounter, {
             childList: true,
             subtree: true
         });
@@ -110,6 +114,10 @@ async function modifyQuality() {
 }
 
 function initializeObserver() {
+    const livePlayerMounter = document.querySelector('.live-player-mounter');
+    if (!livePlayerMounter) {
+        return;
+    }
     const controllerObserver = new MutationObserver(async (_, obs) => {
         if (document.querySelector('.web-player-controller-wrap')) {
             obs.disconnect();
@@ -125,7 +133,7 @@ function initializeObserver() {
         console.log('[Better Bilibili Live] 直播画质观察器已超时停止');
     }, observerTimeout);
 
-    controllerObserver.observe(document.querySelector('.live-player-mounter'), {
+    controllerObserver.observe(livePlayerMounter, {
         childList: true,
         subtree: true,
         attributes: true // 增加属性变化监听
