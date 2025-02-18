@@ -68,6 +68,10 @@ async function waitForElement(selector, timeout = waitForElementTimeout) {
 async function switchToOriginalQuality() {
     try {
         const qualityWrap = await waitForElement('.quality-wrap');
+        if (qualityWrap.children[0].innerText === '原画') {
+            console.log('[Better Bilibili Live] 当前已为原画质');
+            return;
+        }
 
         // 展开画质菜单
         createMouseEvent('mouseenter', qualityWrap);
@@ -79,7 +83,7 @@ async function switchToOriginalQuality() {
 
         // 寻找原画按钮
         const originalQuality = [...qualityList.children].find(item =>
-            item.innerText?.trim().toLowerCase() === '原画'
+            item.innerText === '原画'
         );
 
         if (originalQuality) {
