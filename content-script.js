@@ -12,36 +12,41 @@ function modifyZIndex() {
 
 // 初始化遮罩去除
 function initMaskRemoval() {
-    const livePlayerMounter = document.querySelector('.live-player-mounter');
-    if (!livePlayerMounter) {
-        return;
+    try {
+        const livePlayerMounter = document.querySelector('.live-player-mounter');
+        if (!livePlayerMounter) {
+            return;
+        }
+        // 主执行逻辑
+        window.addEventListener('load', () => {
+            // 尝试立即执行
+            modifyZIndex();
+
+            // 额外添加MutationObserver防止动态加载
+            const maskObserver = new MutationObserver((mutations, obs) => {
+                if (document.getElementById('web-player-module-area-mask-panel')) {
+                    obs.disconnect(); // 找到后停止观察
+                    clearTimeout(fallbackTimeout);
+                    modifyZIndex();
+                }
+            });
+
+            // 安全停止观察机制
+            const fallbackTimeout = setTimeout(() => {
+                maskObserver.disconnect();
+                console.log('[Better Bilibili Live] 直播马赛克观察器已超时停止');
+            }, observerTimeout);
+
+            // 开始观察
+            maskObserver.observe(livePlayerMounter, {
+                childList: true,
+                subtree: true
+            });
+        });
+    } catch (error) {
+        console.error('[Better Bilibili Live] 直播马赛克观察器初始化失败:', error);
     }
-    // 主执行逻辑
-    window.addEventListener('load', () => {
-        // 尝试立即执行
-        modifyZIndex();
 
-        // 额外添加MutationObserver防止动态加载
-        const maskObserver = new MutationObserver((mutations, obs) => {
-            if (document.getElementById('web-player-module-area-mask-panel')) {
-                obs.disconnect(); // 找到后停止观察
-                clearTimeout(fallbackTimeout);
-                modifyZIndex();
-            }
-        });
-
-        // 安全停止观察机制
-        const fallbackTimeout = setTimeout(() => {
-            maskObserver.disconnect();
-            console.log('[Better Bilibili Live] 直播马赛克观察器已超时停止');
-        }, observerTimeout);
-
-        // 开始观察
-        maskObserver.observe(livePlayerMounter, {
-            childList: true,
-            subtree: true
-        });
-    });
 }
 
 //---------------------------------------------改原画--------------------------------------------------
@@ -118,30 +123,35 @@ async function modifyQuality() {
 }
 
 function initializeObserver() {
-    const livePlayerMounter = document.querySelector('.live-player-mounter');
-    if (!livePlayerMounter) {
-        return;
-    }
-    const controllerObserver = new MutationObserver(async (_, obs) => {
-        if (document.querySelector('.web-player-controller-wrap')) {
-            obs.disconnect();
-            clearTimeout(fallbackTimeout);
-            // await new Promise(r => setTimeout(r, 3000)); // 等待控件完全初始化
-            modifyQuality();
+    try {
+        const livePlayerMounter = document.querySelector('.live-player-mounter');
+        if (!livePlayerMounter) {
+            return;
         }
-    });
+        const controllerObserver = new MutationObserver(async (_, obs) => {
+            if (document.querySelector('.web-player-controller-wrap')) {
+                obs.disconnect();
+                clearTimeout(fallbackTimeout);
+                // await new Promise(r => setTimeout(r, 3000)); // 等待控件完全初始化
+                modifyQuality();
+            }
+        });
 
-    // 安全停止观察机制
-    const fallbackTimeout = setTimeout(() => {
-        controllerObserver.disconnect();
-        console.log('[Better Bilibili Live] 直播画质观察器已超时停止');
-    }, observerTimeout);
+        // 安全停止观察机制
+        const fallbackTimeout = setTimeout(() => {
+            controllerObserver.disconnect();
+            console.log('[Better Bilibili Live] 直播画质观察器已超时停止');
+        }, observerTimeout);
 
-    controllerObserver.observe(livePlayerMounter, {
-        childList: true,
-        subtree: true,
-        attributes: true // 增加属性变化监听
-    });
+        controllerObserver.observe(livePlayerMounter, {
+            childList: true,
+            subtree: true,
+            attributes: true // 增加属性变化监听
+        });
+    } catch (error) {
+        console.error('[Better Bilibili Live] 画质控制观察器初始化失败:', error);
+    }
+
 }
 
 // 初始化画质控制
