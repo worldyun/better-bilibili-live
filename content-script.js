@@ -3,6 +3,8 @@
 
     const waitForElementTimeout = 5000;   // 获取element超时时间
     const waitFormaskPanelTimeout = 15000;  // 获取马赛克遮罩超时时间
+    const waitTimeForEvnt = 50;   //  动作执行的等待时间
+    
     let iframeDocument = null;
 
     //-----------------------------------------------直播去马-------------------------------------------
@@ -46,7 +48,7 @@
         while (Date.now() - start < timeout) {
             const element = (iframeDocument || document).querySelector(selector);
             if (element) return element;
-            await new Promise(r => setTimeout(r, 50));
+            await new Promise(r => setTimeout(r, waitTimeForEvnt));
         }
         throw new Error(`Element ${selector} not found within ${timeout}ms`);
     }
@@ -56,6 +58,7 @@
             const qualityWrap = await waitForElement('.quality-wrap');
 
             createMouseEvent('mouseenter', qualityWrap);
+            await new Promise(r => setTimeout(r, waitTimeForEvnt));
             await waitForElement('.line-wrap');
 
             const qualityList = qualityWrap.children[0];
@@ -84,6 +87,7 @@
             console.log('[Better Bilibili Live] 播放控件已加载');
 
             createMouseEvent('mousemove', controllerWrap);
+            await new Promise(r => setTimeout(r, 50));
             await switchToOriginalQuality();
         } catch (error) {
             console.error('[Better Bilibili Live] 播放控件加载失败:', error);
