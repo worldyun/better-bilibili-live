@@ -12,11 +12,10 @@ function modifyZIndex() {
 
 // 初始化遮罩去除
 function initMaskRemoval() {
+    if (!isLiveRome()) return;
     try {
         const livePlayerMounter = document.querySelector('.live-player-mounter');
-        if (!livePlayerMounter) {
-            return;
-        }
+        if (!livePlayerMounter) return;
         // 主执行逻辑
         window.addEventListener('load', () => {
             // 尝试立即执行
@@ -47,6 +46,13 @@ function initMaskRemoval() {
         console.error('[Better Bilibili Live] 直播马赛克观察器初始化失败:', error);
     }
 
+}
+
+// 判断当前页面url是否为直播间页面
+function isLiveRome() {
+    const currentUrl = window.location.href;
+    const urlPattern = /^https?:\/\/live\.bilibili\.com\/\d+.*$/;
+    return urlPattern.test(currentUrl);
 }
 
 //---------------------------------------------改原画--------------------------------------------------
@@ -123,11 +129,10 @@ async function modifyQuality() {
 }
 
 function initializeObserver() {
+    if (!isLiveRome()) return;
     try {
         const livePlayerMounter = document.querySelector('.live-player-mounter');
-        if (!livePlayerMounter) {
-            return;
-        }
+        if (!livePlayerMounter) return;
         const controllerObserver = new MutationObserver(async (_, obs) => {
             if (document.querySelector('.web-player-controller-wrap')) {
                 obs.disconnect();
