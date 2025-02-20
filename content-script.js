@@ -54,10 +54,6 @@
     async function switchToOriginalQuality() {
         try {
             const qualityWrap = await waitForElement('.quality-wrap');
-            if (qualityWrap.children[0]?.innerText === '原画') {
-                console.log('[Better Bilibili Live] 当前已为原画质');
-                return;
-            }
 
             createMouseEvent('mouseenter', qualityWrap);
             await waitForElement('.line-wrap');
@@ -84,10 +80,7 @@
 
     async function modifyQuality() {
         try {
-            let controllerWrap = await waitForElement('#web-player-controller-wrap-el');
-            if (!controllerWrap) {
-                controllerWrap = await waitForElement('.web-player-controller-wrap', waitForElementTimeout);
-            }
+            const controllerWrap = await waitForElement('#web-player-controller-wrap-el');
             console.log('[Better Bilibili Live] 播放控件已加载');
 
             createMouseEvent('mousemove', controllerWrap);
