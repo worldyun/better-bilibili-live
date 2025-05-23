@@ -3,8 +3,9 @@
 
     const waitForElementTimeout = 5000;   // 获取element超时时间
     const waitFormaskPanelTimeout = 15000;  // 获取马赛克遮罩超时时间
-    const waitTimeForEvnt = 50;   //  动作执行的等待时间
-    
+    const waitTimeForEvnt = 200;   //  动作执行的等待时间
+    const waitTimeForSwitch = 1000;   //  画质切换的等待时间
+
     let iframeDocument = null;
 
     //-----------------------------------------------直播去马-------------------------------------------
@@ -64,8 +65,9 @@
             const qualityList = qualityWrap.children[0];
             if (!qualityList) throw new Error('Quality list not found');
 
+            //查找包含“原画”的元素
             const originalQuality = [...qualityList.children].find(item =>
-                item.innerText === '原画'
+                item.innerText.includes('原画')
             );
 
             if (originalQuality) {
@@ -74,7 +76,6 @@
             } else {
                 console.warn('[Better Bilibili Live] 未找到原画选项');
             }
-
             createMouseEvent('mouseleave', qualityWrap);
         } catch (error) {
             console.error('[Better Bilibili Live] 画质切换失败:', error);
@@ -85,6 +86,9 @@
         try {
             const controllerWrap = await waitForElement('#web-player-controller-wrap-el');
             console.log('[Better Bilibili Live] 播放控件已加载');
+            
+            // 等待一段时间以确保切换完成
+            await new Promise(r => setTimeout(r, waitTimeForSwitch));
 
             createMouseEvent('mousemove', controllerWrap);
             await new Promise(r => setTimeout(r, 50));
@@ -136,6 +140,15 @@
     }
 
     window.addEventListener('load', async () => {
+        // 等待当前页面激活
+        await new Promise(r => {
+            const checkActive = setInterval(() => {
+                if (document.visibilityState === 'visible') {
+                    clearInterval(checkActive);
+                    r();
+                }
+            }, 100);
+        });
         if (document.readyState === 'complete') {
             loadConfig();
         } else {
